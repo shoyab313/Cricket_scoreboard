@@ -52,9 +52,14 @@ class MatchViewSet(viewsets.ModelViewSet):
             match.striker_name = request.data.get('striker_name', "")
             match.non_striker_name = request.data.get('non_striker_name', "")
             match.bowler_name = request.data.get('bowler_name', "")
-            match.striker_runs = 0; match.striker_balls = 0
-            match.non_striker_runs = 0; match.non_striker_balls = 0
-            match.bowler_runs = 0; match.bowler_balls = 0; match.bowler_wickets = 0; match.bowler_overs = "0.0"
+            match.striker_runs = 0
+            match.striker_balls = 0
+            match.non_striker_runs = 0
+            match.non_striker_balls = 0
+            match.bowler_runs = 0
+            match.bowler_balls = 0
+            match.bowler_wickets = 0
+            match.bowler_overs = "0.0"
             # Reset dismissed players for the 2nd innings (or keep them separated?)
             # Usually separate, but for simplicity we can just clear it or prefix them.
             # Let's just clear it as it's a new innings.
