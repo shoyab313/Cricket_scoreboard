@@ -17,7 +17,7 @@ export const TEAMS = [
     id: "ENG",
     name: "England",
     shortName: "ENG",
-    flag: "gb", // or "eng" for St George cross (flag-icons supports both)
+    flag: "gb",
   },
   {
     id: "PAK",
@@ -26,22 +26,28 @@ export const TEAMS = [
     flag: "pk",
   },
   {
-    id: "NZ",
-    name: "New Zealand",
-    shortName: "NZ",
-    flag: "nz",
-  },
-  {
     id: "SA",
     name: "South Africa",
     shortName: "SA",
     flag: "za",
   },
   {
+    id: "NZ",
+    name: "New Zealand",
+    shortName: "NZ",
+    flag: "nz",
+  },
+  {
     id: "SL",
     name: "Sri Lanka",
     shortName: "SL",
     flag: "lk",
+  },
+  {
+    id: "WI",
+    name: "West Indies",
+    shortName: "WI",
+    flag: "car",
   },
   {
     id: "BAN",
@@ -56,14 +62,6 @@ export const TEAMS = [
     flag: "af",
   },
   {
-    id: "WI",
-    name: "West Indies",
-    shortName: "WI",
-    flag: "car", 
-    // OR pick one of the actual countries (jm, tt, bb, ag, etc.)
-    // No official West Indies flag exists.
-  },
-  {
     id: "IRE",
     name: "Ireland",
     shortName: "IRE",
@@ -74,23 +72,5 @@ export const TEAMS = [
     name: "Zimbabwe",
     shortName: "ZIM",
     flag: "zw",
-  },
-  {
-    id: "NED",
-    name: "Netherlands",
-    shortName: "NED",
-    flag: "nl",
-  },
-  {
-    id: "NEP",
-    name: "Nepal",
-    shortName: "NEP",
-    flag: "np",
-  },
-  {
-    id: "UAE",
-    name: "United Arab Emirates",
-    shortName: "UAE",
-    flag: "ae",
   },
 ];

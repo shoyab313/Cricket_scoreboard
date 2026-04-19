@@ -48,8 +48,27 @@ class Match(models.Model):
     bowler_wickets = models.IntegerField(default=0)
 
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='UPCOMING')
+    current_innings = models.IntegerField(default=1)
+    target = models.IntegerField(default=0)
+    dismissed_players = models.TextField(default="", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.team_a} vs {self.team_b}"
+
+class Delivery(models.Model):
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='deliveries')
+    innings = models.IntegerField(default=1)
+    over_number = models.IntegerField(default=0)
+    ball_number = models.IntegerField(default=1)
+    striker = models.CharField(max_length=200)
+    non_striker = models.CharField(max_length=200)
+    bowler = models.CharField(max_length=200)
+    runs = models.IntegerField(default=0)
+    extra_type = models.CharField(max_length=10, blank=True, null=True)
+    is_wicket = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.match.id} - Inn {self.innings} Ov {self.over_number}.{self.ball_number}"
 
