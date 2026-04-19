@@ -9,6 +9,8 @@ import {
   Stack,
   Group,
   Badge,
+  Button,
+  SegmentedControl,
 } from "@mantine/core";
 import { TEAMS } from "./data/teams";
 import "flag-icons/css/flag-icons.min.css";
@@ -56,10 +58,24 @@ function bowlerSummary(m) {
   return { name, stats: `${overs} overs • ${runs}-${wickets}` };
 }
 
+// Scoring button configs
+const RUN_BUTTONS = [
+  { label: "0", runs: 0, color: "gray", variant: "light", icon: "•" },
+  { label: "1", runs: 1, color: "blue", variant: "light", icon: "" },
+  { label: "2", runs: 2, color: "cyan", variant: "light", icon: "" },
+  { label: "3", runs: 3, color: "teal", variant: "light", icon: "" },
+  { label: "4", runs: 4, color: "orange", variant: "filled", icon: "🏏" },
+  { label: "6", runs: 6, color: "red", variant: "filled", icon: "💥" },
+];
+
 function App() {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  // Track which team is batting for each match: { matchId: 'team_a' | 'team_b' }
+  const [battingTeams, setBattingTeams] = useState({});
+  // Track loading state per match for button feedback
+  const [actionLoading, setActionLoading] = useState({});
 
   useEffect(() => {
     async function load() {
@@ -70,6 +86,14 @@ function App() {
         }
         const data = await res.json();
         setMatches(data);
+        // Initialize batting team selection for each live match
+        const initialBatting = {};
+        data.forEach((m) => {
+          if (m.status === "LIVE") {
+            initialBatting[m.id] = "team_a";
+          }
+        });
+        setBattingTeams(initialBatting);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -79,6 +103,40 @@ function App() {
 
     load();
   }, []);
+
+  async function handleAddDelivery(matchId, runs, isWicket = false) {
+    const battingTeam = battingTeams[matchId] || "team_a";
+    setActionLoading((prev) => ({ ...prev, [matchId]: true }));
+
+    try {
+      const res = await fetch(
+        `http://127.0.0.1:8000/api/matches/${matchId}/add_delivery/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            batting_team: battingTeam,
+            runs: runs,
+            is_wicket: isWicket,
+          }),
+        }
+      );
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Failed to update match");
+      }
+      const updatedMatch = await res.json();
+      // Update the match in state
+      setMatches((prev) =>
+        prev.map((m) => (m.id === matchId ? updatedMatch : m))
+      );
+    } catch (err) {
+      console.error("Error adding delivery:", err);
+      alert(err.message);
+    } finally {
+      setActionLoading((prev) => ({ ...prev, [matchId]: false }));
+    }
+  }
 
   if (loading)
     return (
@@ -123,6 +181,10 @@ function App() {
               const striker = strikerSummary(m);
               const nonStriker = nonStrikerSummary(m);
               const bowler = bowlerSummary(m);
+
+              const isLive = m.status === "LIVE";
+              const currentBatting = battingTeams[m.id] || "team_a";
+              const isLoading = actionLoading[m.id] || false;
 
               return (
                 <Card
@@ -258,6 +320,84 @@ function App() {
                       </Text>
                     </div>
                   </div>
+
+                  {/* ======= SCORING CONTROLS (only for LIVE matches) ======= */}
+                  {isLive && (
+                    <div className="scoring-panel">
+                      {/* Batting Team Selector */}
+                      <div className="scoring-section">
+                        <Text size="sm" fw={600} mb={6} className="scoring-label">
+                          Batting Team
+                        </Text>
+                        <SegmentedControl
+                          value={currentBatting}
+                          onChange={(val) =>
+                            setBattingTeams((prev) => ({
+                              ...prev,
+                              [m.id]: val,
+                            }))
+                          }
+                          data={[
+                            {
+                              label: `${teamA.shortName}`,
+                              value: "team_a",
+                            },
+                            {
+                              label: `${teamB.shortName}`,
+                              value: "team_b",
+                            },
+                          ]}
+                          size="sm"
+                          color="blue"
+                          fullWidth
+                        />
+                      </div>
+
+                      {/* Run Buttons */}
+                      <div className="scoring-section">
+                        <Text size="sm" fw={600} mb={6} className="scoring-label">
+                          Add Runs
+                        </Text>
+                        <Group gap="xs" justify="center" wrap="wrap">
+                          {RUN_BUTTONS.map((btn) => (
+                            <Button
+                              key={btn.runs}
+                              variant={btn.variant}
+                              color={btn.color}
+                              size="md"
+                              className="score-btn"
+                              disabled={isLoading}
+                              onClick={() =>
+                                handleAddDelivery(m.id, btn.runs, false)
+                              }
+                            >
+                              {btn.icon && (
+                                <span style={{ marginRight: 4 }}>
+                                  {btn.icon}
+                                </span>
+                              )}
+                              {btn.label}
+                            </Button>
+                          ))}
+                        </Group>
+                      </div>
+
+                      {/* Wicket Button */}
+                      <div className="scoring-section">
+                        <Button
+                          variant="filled"
+                          color="red"
+                          size="md"
+                          fullWidth
+                          className="wicket-btn"
+                          disabled={isLoading}
+                          onClick={() => handleAddDelivery(m.id, 0, true)}
+                        >
+                          🚨 Wicket
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </Card>
               );
             })}

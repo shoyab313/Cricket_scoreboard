@@ -42,8 +42,8 @@ class Match(models.Model):
     non_striker_balls = models.IntegerField(default=0)
 
     bowler_name = models.CharField(max_length=200, blank=True, default="")
-    bowler_balls = models.IntegerField(default=0)   # optional, useful if tracking total legal balls
-    bowler_overs = models.CharField(max_length=10, blank=True, default="0.0")  # keep string '10.3' or use Decimal
+    bowler_balls = models.IntegerField(default=0)  
+    bowler_overs = models.CharField(max_length=10, blank=True, default="0.0") 
     bowler_runs = models.IntegerField(default=0)
     bowler_wickets = models.IntegerField(default=0)
 
