@@ -249,13 +249,19 @@ function App() {
           <Text fw={700} color="orange" mb="xs">Over-by-Over Details</Text>
           <Stack gap="xs">
             {innData.overs.map(o => (
-              <Group key={o.number} align="center" style={{background: 'rgba(0,0,0,0.03)', padding: '8px', borderRadius: '8px'}}>
-                <Text size="sm" fw={700} style={{minWidth: 50}}>Ov {o.number}</Text>
-                <Text size="sm" color="dimmed" style={{minWidth: 100}}>{o.bowler}</Text>
-                <Group gap="4px">
-                  {o.balls.map((b, i) => (
-                     <Badge key={i} size="sm" color={b === 'W' ? 'red' : ['WD','NB'].includes(b) ? 'orange' : 'gray'} variant="filled">{b}</Badge>
-                  ))}
+              <Group key={o.number} align="center" style={{background: 'rgba(255,255,255,0.4)', padding: '12px', borderRadius: '16px'}}>
+                <Stack gap={0} style={{minWidth: 80}}>
+                  <Text size="xs" fw={800} color="dimmed" style={{textTransform: 'uppercase'}}>Over {o.number}</Text>
+                  <Text size="sm" fw={700}>{o.bowler}</Text>
+                </Stack>
+                <Group gap="8px">
+                  {o.balls.map((b, i) => {
+                    let ballClass = "ball-normal";
+                    if (b === 'W') ballClass = "ball-wicket";
+                    if (['4', '6'].includes(b)) ballClass = "ball-boundary";
+                    if (['WD', 'NB'].includes(b)) ballClass = "ball-extra";
+                    return <div key={i} className={`ball-badge ${ballClass}`}>{b}</div>
+                  })}
                 </Group>
               </Group>
             ))}
@@ -308,15 +314,8 @@ function App() {
       <div className="app-bg">
         {/* Non-blocking toast notification */}
         {notification && (
-          <div style={{
-            position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)',
-            zIndex: 9999, padding: '12px 24px', borderRadius: 8,
-            background: notification.color === 'red' ? '#ef4444' : '#22c55e',
-            color: 'white', fontWeight: 700, fontSize: 14,
-            boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-            animation: 'fadeIn 0.3s ease'
-          }}>
-            {notification.message}
+          <div className="toast-notification">
+            {notification.color === 'red' ? '❌' : '✅'} {notification.message}
           </div>
         )}
         <Container className="app-content" py="xl">
@@ -385,7 +384,7 @@ function App() {
               const availableBatsmen = battingPlayers.filter(o => !activePlayers.includes(o.value) && !outPlayers.includes(o.value));
 
               return (
-                <Card key={m.id} shadow="sm" p="lg" radius="md" withBorder>
+                <Card key={m.id} shadow="xl" p="xl" radius="lg" withBorder className="match-card-animate">
                   <Group justify="space-between" align="flex-start">
                     <Stack gap={0}>
                       <Title order={3}><span className={`fi fi-${tA.flag} flag-icon`} />{tA.shortName} vs <span className={`fi fi-${tB.flag} flag-icon`} />{tB.shortName}</Title>
@@ -444,11 +443,15 @@ function App() {
                           </Group>
 
                           {m.current_over_balls && m.current_over_balls.length > 0 && (
-                            <Group gap="xs" mt="xs" align="center">
-                              <Text size="xs" fw={700} color="dimmed">THIS OVER:</Text>
-                              {m.current_over_balls.map((b, i) => (
-                                <Badge key={i} size="sm" variant="filled" color={b === 'W' ? 'red' : ['WD','NB'].includes(b) ? 'orange' : 'gray'}>{b}</Badge>
-                              ))}
+                            <Group gap="xs" mt="md" align="center">
+                              <Text size="xs" fw={800} color="dimmed" style={{textTransform: 'uppercase'}}>This Over:</Text>
+                              {m.current_over_balls.map((b, i) => {
+                                let ballClass = "ball-normal";
+                                if (b === 'W') ballClass = "ball-wicket";
+                                if (['4', '6'].includes(b)) ballClass = "ball-boundary";
+                                if (['WD', 'NB'].includes(b)) ballClass = "ball-extra";
+                                return <div key={i} className={`ball-badge ${ballClass}`}>{b}</div>
+                              })}
                             </Group>
                           )}
 
